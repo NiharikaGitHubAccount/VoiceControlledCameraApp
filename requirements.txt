@@ -1,0 +1,11 @@
+
+opencv-python
+SpeechRecognition
+numpy==1.26.0
+opencv-python-headless
+speechrecognition
+gTTS
+fastapi
+uvicorn
+playsound
+
