@@ -10,4 +10,5 @@ uvicorn
 fastapi
 uvicorn
 numpy
+playsound
 
