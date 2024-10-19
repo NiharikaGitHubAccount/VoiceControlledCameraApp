@@ -2,11 +2,16 @@ from fastapi import FastAPI, WebSocket
 from multiprocessing import Process, Queue
 from voice_service import recognize_voice
 from camera_service import start_camera
+import uvicorn
 
 app = FastAPI()
 
 # Shared command queue between camera and voice services
 command_queue = Queue()
+
+@app.get("/")
+async def read_root():
+    return {"message": "Welcome to the Camera Application!"}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -42,6 +47,7 @@ async def websocket_endpoint(websocket: WebSocket):
             command_queue.put("vivid_filter")
 
         await websocket.send_text(f"Command received: {data}")
+    
     await websocket.close()
 
 if __name__ == "__main__":
@@ -52,8 +58,8 @@ if __name__ == "__main__":
     camera_process.start()
     voice_process.start()
 
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    # Start the FastAPI app
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
     camera_process.join()
     voice_process.join()
