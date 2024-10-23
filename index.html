@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Control App</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 20px; 
+            background-color: #f0f0f0; 
+        }
+        video { 
+            width: 100%; 
+            max-width: 600px; 
+            height: auto; 
+            border: 2px solid #333; 
+            margin-bottom: 10px; 
+        }
+        button { 
+            margin: 5px; 
+            padding: 10px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+        }
+        button:hover { 
+            background-color: #45a049; 
+        }
+        h1 { 
+            color: #333; 
+        }
+    </style>
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+
+        ws.onopen = () => {
+            console.log("Connected to WebSocket");
+        };
+
+        ws.onmessage = (event) => {
+            console.log(event.data);
+        };
+
+        function sendCommand(command) {
+            ws.send(command);
+            console.log(`Command sent: ${command}`);
+        }
+
+        async function startCamera() {
+            const video = document.getElementById('video');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.play();
+        }
+
+        function startListening() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.onresult = (event) => {
+                const command = event.results[0][0].transcript.toLowerCase();
+                sendCommand(command);
+                console.log(`Voice Command: ${command}`);
+            };
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error: ', event.error);
+            };
+            recognition.start();
+        }
+
+        // Automatically start the camera when the page loads
+        window.onload = startCamera;
+    </script>
+</head>
+<body>
+    <h1>Camera Control Application</h1>
+    <video id="video" autoplay></video>
+    <div>
+        <button onclick="sendCommand('capture')">Capture</button>
+        <button onclick="sendCommand('quit')">Quit</button>
+        <button onclick="startListening()">Voice Command</button>
+    </div>
+</body>
+</html>
