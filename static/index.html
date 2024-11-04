@@ -1,1 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Control App</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 0; 
+            padding: 20px; 
+            background-image: url('/static/bg.jpeg'); /* Set background image */
+            background-size: cover; /* Cover the entire body */
+            background-repeat: no-repeat; /* Prevent background image from repeating */
+            color: white; /* Set text color to white for better contrast */
+        }
+        img { 
+            width: 100%; 
+            max-width: 1000px; /* Increase max-width for larger camera screen */
+            height: auto; 
+            border: 2px solid #333; 
+            margin-bottom: 10px; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Add shadow for depth */
+        }
+        button { 
+            margin: 5px; 
+            padding: 10px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+        }
+        button:hover { 
+            background-color: #45a049; 
+        }
+        h1 { 
+            color: #fff; /* Make title white */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow to title for better visibility */
+            font-size: 2.5em; /* Increase title size */
+            margin-bottom: 20px; /* Add space below the title */
+        }
+    </style>
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
 
+        ws.onopen = () => {
+            console.log("Connected to WebSocket");
+        };
+
+        ws.onmessage = (event) => {
+            console.log(event.data);
+        };
+
+        function sendCommand(command) {
+            ws.send(command);
+            console.log(`Command sent: ${command}`);
+        }
+
+        function startListening() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.onresult = (event) => {
+                const command = event.results[0][0].transcript.toLowerCase();
+                sendCommand(command);
+                console.log(`Voice Command: ${command}`);
+            };
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error: ', event.error);
+            };
+            recognition.start();
+        }
+
+        // Automatically start the camera when the page loads
+        window.onload = function() {
+            startListening();
+            document.getElementById('video').src = 'http://localhost:8000/video_feed';
+        };
+    </script>
+</head>
+<body>
+    <h1>Camera Control Application</h1>
+    <img id="video" src="" alt="Camera Feed" />
+    <div>
+        <button onclick="sendCommand('capture')">Capture</button>
+        <button onclick="sendCommand('quit')">Quit</button>
+        <button onclick="startListening()">Voice Command</button>
+    </div>
+</body>
+</html>
