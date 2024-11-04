@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, BackgroundTasks
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse
@@ -48,7 +48,8 @@ async def websocket_endpoint(websocket: WebSocket):
         command_queue.put(data)  # Directly send received command to the command queue
         await websocket.send_text(f"Command received: {data}")
 
-if __name__ == "__main__":
+@app.on_event("startup")
+def start_services():
     # Start both services in parallel processes
     camera_process = Process(target=start_camera, args=(command_queue, frame_queue))
     voice_process = Process(target=recognize_voice, args=(command_queue,))
@@ -56,8 +57,6 @@ if __name__ == "__main__":
     camera_process.start()
     voice_process.start()
 
-    # Start the FastAPI app
+# Run the FastAPI app if executing locally
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-    camera_process.join()
-    voice_process.join()
