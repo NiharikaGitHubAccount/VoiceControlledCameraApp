@@ -6,4 +6,4 @@ gTTS==2.5.3
 fastapi==0.115.2
 uvicorn==0.32.0
 playsound==1.2.2
-pyaudio==0.2.11 
+
