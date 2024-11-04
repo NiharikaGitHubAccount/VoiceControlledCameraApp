@@ -75,7 +75,7 @@
         // Automatically start the camera when the page loads
         window.onload = function() {
             startListening();
-            document.getElementById('video').src = 'http://localhost:8000/video_feed';
+            document.getElementById('video').src = `http://${window.location.host}/video_feed`;
         };
     </script>
 </head>
