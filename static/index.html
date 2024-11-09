@@ -10,18 +10,18 @@
             text-align: center; 
             margin: 0; 
             padding: 20px; 
-            background-image: url('/static/bg.jpeg'); /* Set background image */
-            background-size: cover; /* Cover the entire body */
-            background-repeat: no-repeat; /* Prevent background image from repeating */
-            color: white; /* Set text color to white for better contrast */
+            background-image: url('/static/bg.jpeg'); 
+            background-size: cover; 
+            background-repeat: no-repeat; 
+            color: white;
         }
-        img { 
+        video { 
             width: 100%; 
-            max-width: 1000px; /* Increase max-width for larger camera screen */
+            max-width: 1000px; 
             height: auto; 
             border: 2px solid #333; 
             margin-bottom: 10px; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Add shadow for depth */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); 
         }
         button { 
             margin: 5px; 
@@ -37,10 +37,10 @@
             background-color: #45a049; 
         }
         h1 { 
-            color: #fff; /* Make title white */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow to title for better visibility */
-            font-size: 2.5em; /* Increase title size */
-            margin-bottom: 20px; /* Add space below the title */
+            color: #fff; 
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); 
+            font-size: 2.5em; 
+            margin-bottom: 20px; 
         }
     </style>
     <script>
@@ -72,16 +72,24 @@
             recognition.start();
         }
 
-        // Automatically start the camera when the page loads
-        window.onload = function() {
-            startListening();
-            document.getElementById('video').src = `http://${window.location.host}/video_feed`;
-        };
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const videoElement = document.getElementById('video');
+                videoElement.srcObject = stream;
+                startListening();
+            } catch (error) {
+                console.error("Error accessing camera or microphone:", error);
+            }
+        }
+
+        // Start the camera when the page loads
+        window.onload = startCamera;
     </script>
 </head>
 <body>
     <h1>Camera Control Application</h1>
-    <img id="video" src="" alt="Camera Feed" />
+    <video id="video" autoplay playsinline></video>
     <div>
         <button onclick="sendCommand('capture')">Capture</button>
         <button onclick="sendCommand('quit')">Quit</button>
